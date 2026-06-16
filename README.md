@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./dashboard.png" alt="Finance Tracker Dashboard" width="100%" />
+  <img src="./dashboard.png" alt="Finance Tracker" width="100%" />
 
   <p>A comprehensive, full-stack personal finance management desktop application designed to track, analyze, and grow your wealth.</p>
 </div>
