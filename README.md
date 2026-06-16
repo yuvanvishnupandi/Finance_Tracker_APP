@@ -1,123 +1,82 @@
+<div align="center">
+  <img src="./dashboard.jpg" alt="Finance Tracker Dashboard" width="100%" />
 
+  <h1>Finance Tracker App</h1>
+  <p>A comprehensive, full-stack personal finance management solution designed to track, analyze, and grow your wealth.</p>
+</div>
 
-# Finance Tracker: A Full-Stack Personal Finance Manager
+## 📖 Overview
 
-A **robust, full-stack desktop application** designed to help users track, manage, and visualize their income and expenses using a modern Java stack. The project now features a professional, theme-aware UI, advanced reporting, and utility modules.
+**Finance Tracker** is a robust web application built with a modern tech stack to provide users with an intuitive, seamless experience in managing their personal finances. From tracking daily expenses to long-term savings goals, the application centralizes financial data into a dynamic, user-friendly interface.
 
-It demonstrates best practices using a **layered architecture** for maintainability and clean separation of concerns.
+## ✨ Features
 
------
+- **Expense Tracking:** Effortlessly add, categorize, and monitor your daily spending.
+- **Analytics Dashboard:** Visualize your financial health with smart charts, income vs. expense comparisons, and spending trends.
+- **Budget Management:** Set customizable budget limits, receive spending alerts, and track category-specific goals.
+- **Transaction History:** Search and filter your transaction history with a detailed timeline view.
+- **Financial Reports:** Generate and export monthly financial reports (PDF, CSV, Excel formats).
+- **Savings Goals:** Create custom savings goals and track milestone achievements over time.
 
-## 🎯 Primary Use Cases & Core Functionality
+## 🏗️ System Architecture
 
-This Finance Tracker is built to give users complete control over their money with these key capabilities:
+The project follows a standard decoupled Client-Server architecture to ensure high scalability and separation of concerns.
 
-  * **Transaction Management:** Seamlessly **add, edit, and delete** income and expense records.
-  * **Categorization:** Organize every transaction by **categorizing** it (e.g., Groceries, Rent, Salary).
-  * **Budgeting & Goals:** **Set budgets** for each expense category and track progress toward **savings goals** (monthly/quarterly/yearly).
-  * **Data Export:** **Export** financial data to your computer as **CSV** or generate detailed **PDF reports** for data backup and external analysis.
-  * **User Management:** Secure **user login and sign-up** functionality.
-  * **Real-Time Dashboard:** View your balance, recent transactions, and financial charts in real-time.
-  * **World Currency Converter:** Use a dedicated utility to convert amounts between major world currencies.
+- **Frontend (Client):** Handles user interactions, data visualization, and routing. Communicates with the backend via RESTful APIs.
+- **Backend (Server):** Built with Spring Boot. Manages business logic, authentication, request validation, and database transactions.
+- **Database Layer:** A relational database (MySQL/PostgreSQL) used to persist users, transactions, budgets, and savings goals securely.
 
------
+## 🛠️ Tech Stack
 
-## ✨ Key Features & Enhancements
+**Client-Side:**
+- Modern UI components and responsive design
+- Advanced Data Visualization Libraries (Charts & Analytics)
 
-In addition to core tracking, the application provides a modern user experience:
+**Server-Side:**
+- Java 17+
+- Spring Boot (Spring Web, Spring Data JPA, Spring Security)
+- Maven Build Tool
 
-  * **Seamless Theme Switching:** Toggle instantly between **Dark Mode** and **Light Mode (White UI)** using the switch in the top bar. All UI components are theme-aware.
-  * **Professional Dashboard:** Modern, card-based layout providing immediate summaries of **Current Balance, Total Income, Total Expense**, and **Savings Goal** progress with dynamic color coding.
-  * **Comprehensive Reporting:** Generate a detailed **PDF report** for any specified date range.
-  * **UI Modernization:** Significant **CSS cleanup and restructure** to ensure a clean, modern aesthetic across all components.
-
------
-
-## 🛠️ Technology Stack
-
-| Layer | Technology | Key Components |
-| :--- | :--- | :--- |
-| **Frontend (Client)** | **JavaFX** | MVC Architecture, **ThemeManager** utility, Custom CSS (theme-split), Gson |
-| **Backend (Server)** | **Spring Boot 3.3.x** | RESTful APIs (`@RestController`), Service Layer, **Spring Data JPA** |
-| **Database** | **MariaDB / MySQL** | Persistent storage for user accounts, categories, and transactions |
-| **Utilities** | **Java HttpClient** | World Currency conversion API access |
-| **Build Tool** | **Maven** | Dependency management and project lifecycle |
-| **JDK Version** | **Java 23** | Modern Java runtime and language features |
-
------
+**Database & Infrastructure:**
+- MySQL / PostgreSQL
+- RESTful API Architecture
 
 ## 🚀 Getting Started
 
-To run this project locally, make sure you have **Java 23** and a **MariaDB/MySQL** server running.
+### Prerequisites
+- Java Development Kit (JDK) 17+
+- Node.js & npm (if using a web-based client)
+- MySQL / PostgreSQL Server
 
-### 1️⃣ Database Setup
-
-Make sure your database service is running. Then, create a database and user with the following commands:
-
-```sql
-CREATE DATABASE IF NOT EXISTS expense_tracker_db;
-CREATE USER IF NOT EXISTS 'expenseuser'@'localhost' IDENTIFIED BY 'yuvan';
-GRANT ALL PRIVILEGES ON expense_tracker_db.* TO 'expenseuser'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-### 2️⃣ Configure Spring Boot Server
-
-Navigate to the server directory and edit the file: `src/main/resources/application.properties`
-
+### 1. Database Configuration
+Update your database credentials in the backend application properties:
 ```properties
-spring.datasource.url=jdbc:mariadb://localhost:3306/expense_tracker_db
-spring.datasource.username=expenseuser
-spring.datasource.password=yuvan
-spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+# expense-tracker-springboot-server/src/main/resources/application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/finance_tracker
+spring.datasource.username=your_db_username
+spring.datasource.password=your_db_password
+spring.jpa.hibernate.ddl-auto=update
 ```
 
-### 3️⃣ Run the Backend Server (Terminal 1)
-
-Execute this command from the server directory:
-
+### 2. Running the Backend (Spring Boot)
+Open your terminal and navigate to the backend directory:
 ```bash
 cd expense-tracker-springboot-server
-./mvnw clean spring-boot:run
+./mvnw clean install
+./mvnw spring-boot:run
 ```
+The API will be available at `http://localhost:8080`.
 
-> **Wait for the message:** `Started ExpenseTrackerApplication in X.XXX seconds`
-
-### 4️⃣ Run the JavaFX Client (Terminal 2)
-
-Execute this command from the client directory:
-
+### 3. Running the Frontend (Client)
+In a new terminal window, navigate to the frontend directory:
 ```bash
-cd ../expense-tracker-client
-mvn exec:java
+cd expense-tracker-client
+npm install
+npm start
 ```
 
-The **Finance Tracker desktop window** should appear.
+## 🔒 Security & Privacy
+This repository utilizes a comprehensive `.gitignore` to ensure that no system-specific configurations, IDE files, environment variables, or sensitive data are inadvertently committed to version control.
 
------
-
-## 🔑 Demonstration & Data Flow
-
-### UI/UX Flow
-
-The application starts in **Light Mode** by default. Use the "☀ Light" / "🌙 Dark" toggle in the top-right corner to switch themes instantly.
-
-### Data Connectivity Demonstration
-
-This project showcases end-to-end communication between **JavaFX (client), Spring Boot (server),** and **MariaDB (database)**.
-
-  * **Data Write Path (Sign Up):**
-    User details entered in the GUI are sent via **REST API** $\rightarrow$ handled by **Spring Boot Service Layer** $\rightarrow$ inserted into **MariaDB**.
-
-  * **Data Read Path (Login):**
-    Credentials entered in the GUI $\rightarrow$ verified via **API** $\rightarrow$ retrieved using **SQL SELECT query** via **Spring Data JPA**.
-
-
-## 🧠 Author
-
-**Yuvan Vishnu Pandi**
-  * **Contact:** [GitHub](https://github.com/yuvanvishnupandi)
-
-## 🪪 License
-
-This project is open-source and available under the **MIT License**.
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/yuvanvishnupandi/Finance_Tracker_APP/issues).
