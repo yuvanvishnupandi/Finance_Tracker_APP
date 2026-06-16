@@ -1,5 +1,6 @@
 <div align="center">
-  <h1>Finance Tracker App</h1>
+  <img src="./dashboard.png" alt="Finance Tracker Dashboard" width="100%" />
+
   <p>A comprehensive, full-stack personal finance management desktop application designed to track, analyze, and grow your wealth.</p>
 </div>
 
