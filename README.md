@@ -1,6 +1,5 @@
 <div align="center">
-  <!-- Note: Please upload your image file to the repository and name it 'dashboard.jpg' or update this link to your image URL -->
-  <img src="https://raw.githubusercontent.com/yuvanvishnupandi/Finance_Tracker_APP/main/dashboard.jpg" alt="Finance Tracker Dashboard" width="100%" />
+  <img src="./dashboard.jpg" alt="Finance Tracker Dashboard" width="100%" />
 
   <h1>Finance Tracker App</h1>
   <p>A comprehensive, full-stack personal finance management solution designed to track, analyze, and grow your wealth.</p>
