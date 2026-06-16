@@ -42,7 +42,7 @@ graph TD
     end
 
     Controllers -- "HTTP/REST / JSON" --> REST
-    Repo -- "JDBC/Hibernate" --> DB
+    Repo -- "JDBC" --> DB
 
     style Client fill:#f9f9f9,stroke:#333,stroke-width:2px
     style Backend fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
