@@ -106,8 +106,6 @@ cd expense-tracker-client
 mvn clean javafx:run
 ```
 
-## 🔒 Security & Privacy
-This repository utilizes a comprehensive `.gitignore` to ensure that no system-specific configurations, IDE files, environment variables, or sensitive database credentials are inadvertently committed to version control.
 
-## 🤝 Contributing
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/yuvanvishnupandi/Finance_Tracker_APP/issues).
+
+
