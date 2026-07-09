@@ -55,7 +55,7 @@ graph TD
     end
 
     subgraph Storage Layer
-        G[(H2 Local Database)]
+        G[(Local Database)]
     end
 
     A -->|HTTP Requests| B
