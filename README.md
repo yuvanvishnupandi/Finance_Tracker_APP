@@ -92,16 +92,16 @@ java -jar target/expense-tracker-springboot-server-0.0.1-SNAPSHOT.jar
 ```
 
 ## 📖 Documentation Index (Deep Guides)
-All detailed architectural, deployment, and API design specifications live inside the project structure:
+All detailed architectural, deployment, and API design specifications live inside the `docs/` directory:
 
-- **System Architecture & Diagrams**
-- **API Reference REST**
-- **Deployment Staging & Production**
-- **Developer Onboarding & Style Guidelines**
-- **Security Policy & Verification**
-- **Testing Strategy & local testing**
-- **Troubleshooting Common Issues**
-- **FAQ**
+- [System Architecture & Diagrams](docs/architecture.md)
+- [API Reference REST](docs/api.md)
+- [Deployment Staging & Production](docs/deployment.md)
+- [Developer Onboarding & Style Guidelines](docs/development.md)
+- [Security Policy & Verification](docs/security.md)
+- [Testing Strategy & local testing](docs/testing-strategy.md)
+- [Troubleshooting Common Issues](docs/troubleshooting.md)
+- [FAQ](docs/faq.md)
 
 ## 🤝 Contribution Quickstart
 We welcome open-source contributions! Please review our Contributing Guide and adhere to our Code of Conduct before opening Pull Requests.
