@@ -98,10 +98,6 @@ All detailed architectural, deployment, and API design specifications live insid
 - [API Reference REST](docs/api.md)
 - [Deployment Staging & Production](docs/deployment.md)
 - [Developer Onboarding & Style Guidelines](docs/development.md)
-- [Security Policy & Verification](docs/security.md)
-- [Testing Strategy & local testing](docs/testing-strategy.md)
-- [Troubleshooting Common Issues](docs/troubleshooting.md)
-- [FAQ](docs/faq.md)
 
 ## 🤝 Contribution Quickstart
 We welcome open-source contributions! Please review our Contributing Guide and adhere to our Code of Conduct before opening Pull Requests.

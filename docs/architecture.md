@@ -1,72 +1,163 @@
 # System Architecture & Diagrams
 
-Finvora utilizes a distinct **Client-Server Architecture** that separates the presentation layer (JavaFX) from the business logic and persistence layer (Spring Boot).
+This document details the system design, communication protocols, request lifecycles, and security boundaries of the Finvora Finance Tracker environment.
 
-## High-Level Architecture Diagram
+---
+
+## 🏗️ High-Level System Architecture
+
+Finvora uses a highly decoupled Client-Server architecture to facilitate rapid local operations backed by powerful cloud AI processing.
 
 ```mermaid
 graph TD
-    %% Client Side
-    subgraph Client [Desktop Application - JavaFX]
-        UI[Dynamic JavaFX Views & Dashboards]
-        Controllers[UI Controllers]
-        Models[Data Models]
-        Services[AI Services Engine]
-        
-        UI <--> Controllers
-        Controllers <--> Models
-        Controllers <--> Services
-        
-        %% Internal Client Services
-        subgraph AI [AI Routing Engine]
-            Voice[AIVoiceService]
-            Vision[AIVisionService]
-            Router[AIEngine Intent Router]
-            Voice & Vision --> Router
-        end
-        Services --- AI
+    subgraph Client Layer
+        A[JavaFX Desktop App]
     end
 
-    %% External APIs
-    subgraph External [External AI API Providers]
-        APIKey[AI API Keys]
+    subgraph Internal Network Interfaces
+        B[Local HTTP API Gateway]
+        C[File System (PDF / CSV)]
     end
 
-    %% Server Side
-    subgraph Server [Backend - Spring Boot]
-        REST[REST Controllers]
-        Logic[Service Layer]
-        Data[Spring Data JPA]
-        
-        REST <--> Logic
-        Logic <--> Data
+    subgraph Server Services
+        D[Spring Boot REST Controller]
+        E[AI Routing Engine]
+        F[AIVision & AIVoice Services]
     end
 
-    %% Database
-    subgraph DB [Embedded Database]
-        H2[(H2 Relational DB)]
+    subgraph External AI APIs
+        Gemini[Google Gemini API]
+        Mistral[Mistral API]
+        OpenAI[OpenAI API]
     end
 
-    %% Connections
-    Router -- Fallback Logic --> APIKey
+    subgraph Storage Layer
+        G[(H2 Local Database)]
+    end
+
+    A -->|HTTP Requests| B
+    A -->|File I/O| C
+    B --> D
+    A --> E
+    A --> F
+    D --> G
     
-    Controllers -- HTTP / JSON --> REST
-    Data <--> H2
-    
-    style UI fill:#ff9900,stroke:#333,stroke-width:2px,color:#000
-    style REST fill:#85ea2d,stroke:#333,stroke-width:2px,color:#000
-    style H2 fill:#4285F4,stroke:#333,stroke-width:2px,color:#fff
-    style AI fill:#9d4edd,stroke:#333,stroke-width:2px,color:#fff
+    E -->|Primary LLM| Gemini
+    E -.->|Fallback 1| Mistral
+    E -.->|Fallback 2| OpenAI
 ```
 
-## Component Breakdown
+---
 
-### 1. JavaFX Client
-- **Views**: Programmatic UI components rendering glassmorphic interfaces and responsive layouts. No FXML is used to guarantee runtime speed.
-- **Controllers**: MVC bindings that manage interactions and delegate complex processing (like PDF generation or AI requests) to services.
-- **AI Engine**: A highly available multi-provider API router that intelligently handles AI intent resolution and audio processing.
+## 🚦 Request & Data Lifecycles
 
-### 2. Spring Boot Server
-- **REST Layer**: Secure, standard JSON-based HTTP API built with Spring Web.
-- **Data Layer**: Hibernate ORM wrapping standard entity lifecycle management for Transactions, Budgets, and Goals.
-- **H2 DB**: File-based zero-configuration database ensuring quick startup and isolation on the user's local machine.
+### 1. HTTP REST Authentication & Data Lifecycle
+
+Below is the sequence of auth verification and header mapping when accessing the local Spring Boot backend:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as JavaFX Client
+    participant Controller as Spring Boot REST Controller
+    participant Service as Business Logic Service
+    participant Repo as Spring Data JPA Repo
+    participant DB as H2 Database
+
+    Client->>Controller: GET /api/v1/transaction/user/{userId}
+    Note over Controller: Validates User ID format
+    alt Invalid Input
+        Controller-->>Client: 400 Bad Request
+    else Valid Input
+        Controller->>Service: fetchTransactions(userId)
+        Service->>Repo: findByUserIdOrderByTransactionDateDesc()
+        Repo->>DB: SELECT * FROM transaction WHERE user_id = ?
+        DB-->>Repo: Return ResultSet
+        Repo-->>Service: Return Entity List
+        Service->>Service: Map Entities to DTOs
+        Service-->>Controller: Return DTO List
+        Controller-->>Client: 200 OK (JSON Data)
+    end
+```
+
+### 2. Multi-LLM Resilient AI Routing Flow
+
+The AI Intent Router uses a cascading fallback mechanism to ensure 100% uptime when making API queries.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Finvora User
+    participant Router as AIEngine Router
+    participant Gemini as Gemini API
+    participant Mistral as Mistral API
+    participant OpenAI as OpenAI API
+
+    User->>Router: "I spent $50 on food just now"
+    Note over Router: Injects Current Local Time Context
+    Router->>Gemini: POST generateContent()
+    
+    alt Gemini Success
+        Gemini-->>Router: 200 OK (JSON Intent)
+    else Gemini Rate Limit / Outage (429/500)
+        Router-->>Router: Catch Exception & Fallback
+        Router->>Mistral: POST /v1/chat/completions
+        
+        alt Mistral Success
+            Mistral-->>Router: 200 OK (JSON Intent)
+        else Mistral Timeout
+            Router-->>Router: Catch Exception & Fallback
+            Router->>OpenAI: POST /v1/chat/completions
+            OpenAI-->>Router: 200 OK (JSON Intent)
+        end
+    end
+    
+    Router->>User: Resolves Intent & Inserts Transaction
+```
+
+---
+
+## 🛡️ Security Boundaries
+
+We isolate operational layers to block arbitrary access to user financial data:
+
+```mermaid
+graph LR
+    subgraph Desktop OS Environment
+        A[JavaFX App Process]
+    end
+
+    subgraph Secure Local Perimeter (127.0.0.1)
+        B[Spring Boot App Router]
+    end
+
+    subgraph Internal File System (No External Access)
+        D[(H2 Database file .db)]
+    end
+
+    subgraph Public Internet
+        E[External AI Providers]
+    end
+
+    A -->|REST API over localhost| B
+    B -->|JPA JDBC Connection| D
+    A -->|HTTPS / TLS 1.3| E
+```
+
+---
+
+## 💻 Developer Workflow
+
+The lifecycle of developer updates from local editor to final application compilation:
+
+```mermaid
+graph TD
+    A[Write Code Locally] --> B[Run Maven Compile]
+    B -->|Check Dependencies| C{Valid POMs?}
+    C -->|Invalid| D[Maven Build Failure]
+    C -->|Valid| E[Compile Java Sources to .class]
+    E --> F[Run JUnit Tests]
+    F -->|Tests Fail| G[Reject Build]
+    F -->|Passes| H[Generate Executable JAR & JLink Runtime]
+    H --> I[End User Delivery]
+```
