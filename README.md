@@ -1,5 +1,7 @@
 # Finvora - Finance Tracker
 
+![Finvora Dashboard](dashboard.png)
+
 Finvora is a production-grade, AI-powered personal finance tracker and wealth management workspace. It provides a comprehensive dashboard for monitoring expenses, tracking budgets, and interacting with bleeding-edge AI models for automated financial management.
 
 ## Features
