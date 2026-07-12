@@ -1,4 +1,2 @@
-org\example\services\AIProactiveMonitor.class
-org\example\TestVision.class
-org\example\services\AIVisionService.class
-org\example\services\AIEngine.class
+org\example\views\FinvoraAIView.class
+org\example\controllers\FinvoraAIController.class

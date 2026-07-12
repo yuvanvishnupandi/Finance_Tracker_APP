@@ -5,6 +5,8 @@ import javafx.concurrent.Task;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import com.google.gson.JsonObject;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -141,9 +143,9 @@ public class AIVoiceService {
             "You possess vast knowledge in personal finance, global economics, current events, and mathematical reasoning.\n" +
             "The user's LIVE financial context (balances, goals, budgets) is provided here: " + userContext + ".\n" +
             "CRITICAL INSTRUCTION: Read the user's input carefully and understand their exact intent. If they ask a specific question, answer it DIRECTLY, RELEVANTLY, and COMPREHENSIVELY.\n" +
-            "If they ask about their data (like how much more is needed for a trip), do the exact math using the live context and give them a precise, accurate answer.\n" +
-            "If they just want to chat, be a great conversationalist.\n" +
-            "Always be highly intelligent, deeply context-aware, and extremely helpful. Never give a generic response when a specific one is possible.";
+            "If they ask a general financial question, a hypothetical scenario (like 'how much to save to buy a car worth 9 lacs'), or request a mathematical calculation, DO IT PRECISELY and accurately. Do NOT say you are missing data; make reasonable assumptions or use standard formulas if needed, but always provide a concrete numerical answer.\n" +
+            "If they ask about their personal data, do the exact math using the live context and give them a precise answer.\n" +
+            "If they just want to chat, be a great conversationalist. Always be highly intelligent, deeply context-aware, and extremely helpful. Never give a generic refusal response.";
             
         String advice = AIEngine.generateText(agent2Prompt, text);
         
@@ -180,18 +182,37 @@ public class AIVoiceService {
         
         String result = output.toString().trim();
         if (result.startsWith("Error:") || result.isEmpty() || result.equals("No file")) {
-            throw new Exception("Local STT Error: " + result);
+            throw new Exception("Microphone or STT Error. Check if your mic is working! Details: " + result);
         }
         return result;
     }
 
     private File generateSpeech(String text) throws Exception {
-        // Google TTS fails with HTTP 400 if the query string is too long (> ~200 chars)
-        if (text.length() > 190) {
-            text = text.substring(0, 190);
-        }
+        java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
         
-        String encodedText = java.net.URLEncoder.encode(text, StandardCharsets.UTF_8);
+        // Split text into chunks of roughly 150 characters to stay safely under Google's 200 char limit
+        String[] words = text.split(" ");
+        StringBuilder currentChunk = new StringBuilder();
+        
+        for (String word : words) {
+            if (currentChunk.length() + word.length() + 1 > 150) {
+                downloadGoogleTTSChunk(currentChunk.toString().trim(), outputStream);
+                currentChunk = new StringBuilder();
+            }
+            currentChunk.append(word).append(" ");
+        }
+        if (currentChunk.length() > 0) {
+            downloadGoogleTTSChunk(currentChunk.toString().trim(), outputStream);
+        }
+
+        File mp3 = File.createTempFile("advice", ".mp3");
+        java.nio.file.Files.write(mp3.toPath(), outputStream.toByteArray());
+        return mp3;
+    }
+
+    private void downloadGoogleTTSChunk(String chunk, java.io.ByteArrayOutputStream outputStream) throws Exception {
+        if (chunk.isEmpty()) return;
+        String encodedText = java.net.URLEncoder.encode(chunk, StandardCharsets.UTF_8);
         String urlString = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=" + encodedText;
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -200,13 +221,11 @@ public class AIVoiceService {
                 .build();
 
         HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-        if (response.statusCode() != 200) {
-            throw new Exception("Google TTS Error: HTTP " + response.statusCode());
+        if (response.statusCode() == 200) {
+            outputStream.write(response.body());
+        } else {
+            System.err.println("Google TTS Error: HTTP " + response.statusCode());
         }
-
-        File mp3 = File.createTempFile("advice", ".mp3");
-        Files.write(mp3.toPath(), response.body());
-        return mp3;
     }
 
     private void playAudio(File audioFile) {
@@ -217,6 +236,16 @@ public class AIVoiceService {
             }
             mediaPlayer = new MediaPlayer(new Media(audioFile.toURI().toString()));
             mediaPlayer.play();
+        });
+    }
+
+    public void stopAudio() {
+        Platform.runLater(() -> {
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                mediaPlayer.dispose();
+                mediaPlayer = null;
+            }
         });
     }
 

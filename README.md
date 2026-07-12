@@ -24,8 +24,9 @@ Finvora is a production-grade, AI-powered personal finance tracker and wealth ma
 
 ### AI Capabilities
 - Multi-LLM AI Fallback Engine: Seamless, resilient chat interactions powered by Gemini, Mistral, and OpenAI APIs.
-- Voice-Activated Logging: Inline voice prompting parses spoken commands, grabs the exact time, and logs the transaction.
-- AI Receipt Scanner: Upload receipts to automatically extract transaction names, amounts, and dates with zero manual entry.
+- Dedicated AI Assistant View: A brand-new floating, conversational AI window for all financial queries.
+- Voice-Activated Logging & Chat: Inline voice prompting parses spoken commands, grabs the exact time, and logs the transaction. Includes robust infinite voice chunking using free Google TTS.
+- AI Receipt Scanner: Upload receipts to automatically extract transaction names, amounts, and dates with zero manual entry. Includes real-time status pop-up alerts.
 
 ## System Architecture
 

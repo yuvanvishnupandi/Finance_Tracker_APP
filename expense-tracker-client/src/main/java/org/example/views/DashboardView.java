@@ -56,7 +56,8 @@ public class DashboardView {
     private MenuItem aboutUsMenuItem; 
 
     private MenuItem convertCurrencyMenuItem;
-
+    public Button finvoraAIButton;
+    
     private TableView<MonthlyFinance> transactionTable;
     public Button aiAlertsButton;
     private TableColumn<MonthlyFinance, String> monthColumn;
@@ -112,6 +113,8 @@ public class DashboardView {
         aboutUsMenuItem = new MenuItem("About Us"); 
         
         convertCurrencyMenuItem = new MenuItem("Convert Currency...");
+        finvoraAIButton = new Button("✨ Finvora AI");
+        finvoraAIButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #4F46E5; -fx-font-weight: bold; -fx-cursor: hand;");
 
         yearComboBox = new ComboBox<>();
         transactionTable = new TableView<>();
@@ -224,7 +227,7 @@ public class DashboardView {
         
         themeToggle.setStyle("-fx-background-color: transparent; -fx-text-fill: #D4D4D4; -fx-cursor: hand; -fx-font-weight: bold;");
         
-        javafx.scene.layout.HBox topBar = new javafx.scene.layout.HBox(menuBar, spacer, aiAlertsButton, themeToggle);
+        javafx.scene.layout.HBox topBar = new javafx.scene.layout.HBox(menuBar, spacer, finvoraAIButton, aiAlertsButton, themeToggle);
         topBar.getStyleClass().add("top-bar-background");
         topBar.setAlignment(Pos.CENTER_LEFT);
         topBar.setPadding(new javafx.geometry.Insets(0, 15, 0, 0));
@@ -311,7 +314,7 @@ public class DashboardView {
         GridPane.setVgrow(recentTransactionsVBox, Priority.ALWAYS);
         recentTransactionsVBox.setMinWidth(0);
         
-        VBox rightColumn = new VBox(10, createAIVoicePlannerPanel(), recentTransactionsVBox);
+        VBox rightColumn = new VBox(10, recentTransactionsVBox);
         GridPane.setVgrow(rightColumn, Priority.ALWAYS);
         rightColumn.setMinWidth(0);
 
@@ -385,44 +388,7 @@ public class DashboardView {
         return recentTransactionsVBox;
     }
 
-    private VBox createAIVoicePlannerPanel() {
-        VBox aiBox = new VBox(15);
-        aiBox.getStyleClass().addAll("ui-card-squircle");
-        
-        Label titleLabel = new Label("Finvora AI Assistant");
-        titleLabel.getStyleClass().addAll("text-size-lg", "text-light-gray");
-        
-        HBox headerBox = new HBox(15, titleLabel);
-        headerBox.setAlignment(Pos.CENTER_LEFT);
-        
-        chatInput = new TextField();
-        chatInput.setPromptText("Type your financial question or goal...");
-        chatInput.getStyleClass().addAll("input-field");
-        HBox.setHgrow(chatInput, Priority.ALWAYS);
 
-        sendBtn = new Button("Send");
-        sendBtn.getStyleClass().addAll("primary-button");
-        
-        voiceBtn = new ToggleButton("🎤 Voice");
-        voiceBtn.getStyleClass().addAll("toggle-button");
-        
-        HBox textInputBox = new HBox(10, chatInput, sendBtn, voiceBtn);
-        textInputBox.setAlignment(Pos.CENTER_LEFT);
-
-        aiStatusLabel = new Label("Ready.");
-        aiStatusLabel.getStyleClass().addAll("stat-label");
-
-        aiAdviceArea = new TextArea();
-        aiAdviceArea.setPromptText("Your AI advisor's strategy will appear here...");
-        aiAdviceArea.setWrapText(true);
-        aiAdviceArea.setEditable(false);
-        aiAdviceArea.setPrefRowCount(3);
-        aiAdviceArea.getStyleClass().addAll("input-field");
-
-        aiBox.getChildren().addAll(headerBox, textInputBox, aiStatusLabel, aiAdviceArea);
-
-        return aiBox;
-    }
 
     private void resizeTableWidthColumns() {
         Platform.runLater(() -> {

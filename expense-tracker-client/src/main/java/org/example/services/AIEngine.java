@@ -12,48 +12,54 @@ import java.nio.charset.StandardCharsets;
 public class AIEngine {
     private static final String GEMINI_KEY = "YOUR_GEMINI_API_KEY";
     private static final String MISTRAL_KEY = "YOUR_MISTRAL_API_KEY";
-    private static final String OPENAI_KEY = "YOUR_OPENAI_API_KEY";
+    public static final String OPENAI_KEY = "YOUR_OPENAI_API_KEY";
     
     private static final HttpClient client = HttpClient.newHttpClient();
 
     public static String generateText(String systemPrompt, String userMessage) {
-        System.out.println("AIEngine: Attempting Gemini 2.5 Flash...");
+        System.out.println("AIEngine: Attempting OpenAI GPT-4o-mini...");
+        String enhancedSystemPrompt = systemPrompt + "\n\nIMPORTANT: DO NOT USE ANY MARKDOWN FORMATTING. DO NOT USE ASTERISKS (*). Reply with clean, plain text only.";
+        String result = null;
         try {
-            return callGemini(systemPrompt + "\n\n" + userMessage);
+            result = callOpenAI("gpt-4o-mini", enhancedSystemPrompt, userMessage);
         } catch (Exception e1) {
-            System.err.println("Gemini failed: " + e1.getMessage());
+            System.err.println("OpenAI failed: " + e1.getMessage());
             System.out.println("AIEngine: Falling back to Mistral Large...");
             try {
-                return callMistral("mistral-large-latest", systemPrompt, userMessage);
+                result = callMistral("mistral-large-latest", enhancedSystemPrompt, userMessage);
             } catch (Exception e2) {
                 System.err.println("Mistral failed: " + e2.getMessage());
-                System.out.println("AIEngine: Falling back to OpenAI GPT-4o-mini...");
+                System.out.println("AIEngine: Falling back to Gemini 2.5 Flash...");
                 try {
-                    return callOpenAI("gpt-4o-mini", systemPrompt, userMessage);
+                    result = callGemini(enhancedSystemPrompt + "\n\n" + userMessage);
                 } catch (Exception e3) {
-                    System.err.println("OpenAI failed: " + e3.getMessage());
+                    System.err.println("Gemini failed: " + e3.getMessage());
                     return "ERROR: All AI Providers failed. Please check your internet or API quotas.";
                 }
             }
         }
+        if (result != null) {
+            return result.replace("*", "");
+        }
+        return "ERROR: Unknown error in AI generation.";
     }
 
     public static String processVision(String base64Image, String mimeType, String prompt) {
-        System.out.println("AIEngine: Attempting Gemini 2.5 Flash Vision...");
+        System.out.println("AIEngine: Attempting OpenAI Vision...");
         try {
-            return callGeminiVision(base64Image, mimeType, prompt);
+            return callOpenAIVision("gpt-4o-mini", base64Image, mimeType, prompt);
         } catch (Exception e1) {
-            System.err.println("Gemini Vision failed: " + e1.getMessage());
+            System.err.println("OpenAI Vision failed: " + e1.getMessage());
             System.out.println("AIEngine: Falling back to Mistral Pixtral...");
             try {
                 return callMistralVision("pixtral-12b-2409", base64Image, mimeType, prompt);
             } catch (Exception e2) {
                 System.err.println("Mistral Vision failed: " + e2.getMessage());
-                System.out.println("AIEngine: Falling back to OpenAI Vision...");
+                System.out.println("AIEngine: Falling back to Gemini 2.5 Flash Vision...");
                 try {
-                    return callOpenAIVision("gpt-4o-mini", base64Image, mimeType, prompt);
+                    return callGeminiVision(base64Image, mimeType, prompt);
                 } catch (Exception e3) {
-                    System.err.println("OpenAI Vision failed: " + e3.getMessage());
+                    System.err.println("Gemini Vision failed: " + e3.getMessage());
                     return "ERROR: All Vision Providers failed.";
                 }
             }
@@ -63,7 +69,7 @@ public class AIEngine {
     // --- GEMINI ---
     private static String callGemini(String prompt) throws Exception {
         String jsonPayload = String.format(
-                "{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}], \"generationConfig\": {\"temperature\": 0.7}}",
+                "{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}], \"generationConfig\": {\"temperature\": 0.2}}",
                 escapeJson(prompt)
         );
         HttpRequest request = HttpRequest.newBuilder()
@@ -110,7 +116,7 @@ public class AIEngine {
     // --- MISTRAL ---
     private static String callMistral(String model, String sys, String user) throws Exception {
         String jsonPayload = String.format(
-                "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"temperature\":0.7}",
+                "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"temperature\":0.2}",
                 model, escapeJson(sys), escapeJson(user)
         );
         HttpRequest request = HttpRequest.newBuilder()
@@ -131,7 +137,7 @@ public class AIEngine {
     // --- OPENAI ---
     private static String callOpenAI(String model, String sys, String user) throws Exception {
         String jsonPayload = String.format(
-                "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"temperature\":0.7}",
+                "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"temperature\":0.2}",
                 model, escapeJson(sys), escapeJson(user)
         );
         HttpRequest request = HttpRequest.newBuilder()

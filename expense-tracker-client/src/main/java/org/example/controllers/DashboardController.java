@@ -356,7 +356,7 @@ public class DashboardController {
             fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Receipts", "*.jpg", "*.pdf"));
             File img = fc.showOpenDialog(view.getAddTransactionButton().getScene().getWindow());
             if (img != null) {
-                view.getAiStatusLabel().setText("AI Vision: Extracting receipt data...");
+                System.out.println("AI Vision: Extracting receipt data...");
                 new Thread(() -> {
                     try {
                         com.google.gson.JsonObject result = org.example.services.AIVisionService.processReceipt(img);
@@ -420,16 +420,38 @@ public class DashboardController {
                                 tJson.add("user", userObj);
                                 
                                 org.example.utils.SqlUtil.postTransaction(tJson);
-                                view.getAiStatusLabel().setText("AI Vision: Receipt parsed successfully!");
+                                final String finalVendor = vendor;
+                                final double finalAmount = amount;
+                                final String finalDate = date;
+                                final org.example.models.TransactionCategory finalTargetCat = targetCat;
+                                javafx.application.Platform.runLater(() -> {
+                                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                                    alert.setTitle("Receipt Scanned");
+                                    alert.setHeaderText("Receipt Successfully Scanned");
+                                    alert.setContentText(String.format("Vendor: %s\nAmount: %s\nDate: %s\nCategory: %s", finalVendor, finalAmount, finalDate, finalTargetCat != null ? finalTargetCat.getCategoryName() : "Uncategorized"));
+                                    alert.showAndWait();
+                                });
                                 fetchUserData();
                             } catch (Exception ex) {
                                 ex.printStackTrace();
-                                view.getAiStatusLabel().setText("AI Vision: Missing or invalid fields in receipt.");
+                                javafx.application.Platform.runLater(() -> {
+                                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                                    alert.setTitle("Scan Error");
+                                    alert.setHeaderText("Could not parse receipt");
+                                    alert.setContentText("Missing or invalid fields in receipt.");
+                                    alert.showAndWait();
+                                });
                             }
                         });
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        javafx.application.Platform.runLater(() -> view.getAiStatusLabel().setText("AI Vision: Failed to read receipt."));
+                        javafx.application.Platform.runLater(() -> {
+                            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                            alert.setTitle("Scan Error");
+                            alert.setHeaderText("AI Vision Failed");
+                            alert.setContentText("Failed to read receipt.");
+                            alert.showAndWait();
+                        });
                     }
                 }).start();
             }
@@ -447,38 +469,8 @@ public class DashboardController {
             return row;
         });
 
-        AIVoiceService voiceService = new AIVoiceService();
-
-        view.getSendBtn().setOnAction(e -> {
-            String text = view.getChatInput().getText();
-            if(!text.isEmpty()){
-                view.getAiStatusLabel().setText("Finvora AI is processing your request...");
-                String context = buildDeepContext();
-                
-                voiceService.processTextDirectly(text, context, "Professional",
-                    status -> javafx.application.Platform.runLater(() -> view.getAiStatusLabel().setText(status)),
-                    advice -> javafx.application.Platform.runLater(() -> view.getAiAdviceArea().setText(advice)),
-                    intentJson -> handleIntent(intentJson)
-                );
-                view.getChatInput().clear();
-            } else {
-                view.getAiStatusLabel().setText("Please type a message first.");
-            }
-        });
-
-        view.getVoiceBtn().setOnAction(e -> {
-            if (view.getVoiceBtn().isSelected()) {
-                voiceService.startRecording();
-                view.getAiStatusLabel().setText("Listening... (Click Voice again to send)");
-            } else {
-                view.getAiStatusLabel().setText("Processing voice...");
-                String context = buildDeepContext();
-                voiceService.stopRecordingAndProcess(context, "Professional",
-                    status -> javafx.application.Platform.runLater(() -> view.getAiStatusLabel().setText(status)),
-                    advice -> javafx.application.Platform.runLater(() -> view.getAiAdviceArea().setText(advice)),
-                    intentJson -> handleIntent(intentJson)
-                );
-            }
+        view.finvoraAIButton.setOnAction(e -> {
+            new org.example.views.FinvoraAIView(view.getEmail()).show();
         });
     }
 
