@@ -178,7 +178,8 @@ Compile and run the Spring Boot backend server and the JavaFX frontend client. D
 
 <td align="center" width="180" height="180">
 <a href="https://openai.com/">
-  <img src="./assets/openai.jpg" alt="OpenAI" width="900"/>
+<img src="./assets/openai.jpg" alt="OpenAI" width="900"/><br><br>
+  <b>OpenAI</b>
 </a>
 </td>
 
